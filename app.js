@@ -3,6 +3,7 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 
 const Pizza = require("./models/Pizza.model");
+const Cook = require("./models/Cook.model");
 
 const app = express();
 const PORT = 3000;
@@ -61,6 +62,7 @@ app.get("/pizzas", (req, res, next) => {
   }
 
   Pizza.find(filter)
+    .populate("cook")
     .then((pizzasFromDb) => {
       res.json(pizzasFromDb);
     })
@@ -75,6 +77,58 @@ app.get("/pizzas", (req, res, next) => {
   // });
 
   // res.json(filteredPizzas);
+});
+
+//filter individual pizza wrt id's
+app.get("/pizzas/:pizzaId", (req, res, next) => {
+  let { pizzaId } = req.params;
+  Pizza.findById(pizzaId)
+    .then((pizzaFromDb) => {
+      res.json(pizzaFromDb);
+    })
+    .catch((e) => {
+      res.status(501).json({ e: "Error" });
+    });
+});
+
+//update
+app.put("/pizzas/:pizzaId", (req, res, next) => {
+  const { pizzaId } = req.params;
+  const newDetails = req.body;
+
+  Pizza.findByIdAndUpdate(pizzaId, newDetails)
+    .then((pizzaFromDb) => {
+      res.json(pizzaFromDb);
+    })
+    .catch((e) => {
+      res.status(500).json({ e: "failed" });
+    });
+});
+
+//Delete /pizzas/:pizzaId
+app.delete("/pizzas/:pizzaId", (req, res, next) => {
+  const { pizzaId } = req.params;
+
+  Pizza.findByIdAndDelete(pizzaId)
+    .then((response) => {
+      res.json(response);
+    })
+    .catch((err) => {
+      res.status(500).json(err, "Error");
+    });
+});
+
+//Post /cooks
+app.post("/cooks", (req, res, next) => {
+  const newCook = req.body;
+
+  Cook.create(newCook)
+    .then((cookFromDb) => {
+      res.status(201).json(cookFromDb);
+    })
+    .catch((err) => {
+      res.status(500).json(err, "Error");
+    });
 });
 
 app.listen(PORT, () => {

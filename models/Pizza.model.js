@@ -7,6 +7,11 @@ const pizzaSchema = new Schema({
   isVeggie: { type: Boolean, default: false },
   ingredients: [String],
   dough: { type: String, enum: ["thin", "thick"] },
+  cook: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Cook",
+    required: true,
+  },
 });
 
 const Pizza = mongoose.model("Pizza", pizzaSchema);
